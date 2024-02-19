@@ -1,3 +1,5 @@
+The Python and C+++ versions of the original MATLAB code for uniformly sampling positive definite matrices with trace constraint
+
 Sampling Uniformly From the Set of Positive Definite Matrices With Trace Constraint
 ==================
 
