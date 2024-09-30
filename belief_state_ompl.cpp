@@ -1,3 +1,5 @@
+// belief_state_ompl.cpp
+
 // Include OMPL headers
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/ValidStateSampler.h>
@@ -17,7 +19,7 @@
 
 namespace ob = ompl::base;
 
-// Function declarations (your provided functions)
+// Function declarations (as provided)
 void randpdm(int dim, const std::vector<double>& trace, int num, const std::string& type,
              const std::string& method, std::vector<Eigen::MatrixXd>& A);
 Eigen::MatrixXd makeA(int dim, const std::vector<double>& phi, bool is_complex);
@@ -82,10 +84,14 @@ public:
             rv_state->values[i] = net_vector[i];
         }
 
-        // Optionally, you can check if the state is valid
-        // assert(si_->isValid(state));
-
         return true;
+    }
+
+    // Implement the sampleNear function
+    bool sampleNear(ob::State *state, const ob::State *near, double distance) override
+    {
+        // For now, we'll indicate that sampling near a state is not implemented.
+        return false;
     }
 
 protected:
@@ -351,7 +357,6 @@ void rndtrace(int dim, double lb, double ub, int num, const std::string& type,
     }
 }
 
-// Main function to test the sampler
 int main()
 {
     // Define the dimension d
@@ -386,6 +391,37 @@ int main()
         std::cout << net_vector[i] << " ";
     }
     std::cout << "\n\n";
+
+    // Print x and A separately
+    // Extract x
+    std::vector<double> x(net_vector.begin(), net_vector.begin() + d);
+
+    // Extract A_vectorized
+    std::vector<double> A_vectorized(net_vector.begin() + d, net_vector.end());
+
+    // Reconstruct A from A_vectorized
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(d, d);
+    size_t idx = 0;
+    for (int i = 0; i < d; ++i) {
+        for (int j = i; j < d; ++j) {
+            A(i, j) = A_vectorized[idx];
+            if (i != j) {
+                A(j, i) = A_vectorized[idx]; // Since A is symmetric
+            }
+            ++idx;
+        }
+    }
+
+    // Print x
+    std::cout << "State vector x (size " << x.size() << "):\n";
+    for (size_t i = 0; i < x.size(); ++i) {
+        std::cout << x[i] << " ";
+    }
+    std::cout << "\n\n";
+
+    // Print A
+    std::cout << "Positive definite matrix A (size " << d << "x" << d << "):\n";
+    std::cout << A << "\n\n";
 
     // Clean up
     space->freeState(state);
