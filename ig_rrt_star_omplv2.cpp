@@ -53,11 +53,11 @@ public:
         // Sample x ∈ [-1,1]^d
         Eigen::VectorXd x(d);
         for (int i = 0; i < d; ++i) {
-            x(i) = rng_.uniformReal(-1.0, 1.0);
+            x(i) = rng_.uniformReal(-5.0, 5.0);
         }
 
         // Generate a positive definite matrix using randpdm
-        std::vector<double> trace = {1.0}; // Trace of the matrix
+        std::vector<double> trace = {0.4, 0.8}; // Trace of the matrix
         int num = 1; // Number of matrices to generate
         std::string type = "real"; // "real" or "complex"
         std::string method = "rejection"; // "rejection" or "betadistr"
@@ -538,8 +538,8 @@ int main()
     int d = 2; // Changed to 2D for easy plotting
 
     // Define alpha and W for the cost function
-    double alpha = 1.0; // You can set this to any positive value
-    Eigen::MatrixXd W = Eigen::MatrixXd::Identity(d, d); // Define W as an identity matrix
+    double alpha = 0.2; // You can set this to any positive value
+    Eigen::MatrixXd W = 0.001*Eigen::MatrixXd::Identity(d, d); // Define W as an identity matrix
 
     // Calculate the size of the net vector: d + (d*(d+1))/2
     size_t net_vector_size = d + (d * (d + 1)) / 2;
@@ -615,14 +615,14 @@ int main()
     ss.setPlanner(planner);
 
     // Attempt to solve the problem within a given time (seconds)
-    ob::PlannerStatus solved = ss.solve(10.0);
+    ob::PlannerStatus solved = ss.solve(20.0);
 
     if (solved)
     {
         std::cout << "Found solution:" << std::endl;
 
         // Simplify the solution (optional)
-        ss.simplifySolution();
+        // ss.simplifySolution();
 
         // Get the solution path
         og::PathGeometric path = ss.getSolutionPath();
