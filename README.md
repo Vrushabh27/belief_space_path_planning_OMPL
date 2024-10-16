@@ -131,7 +131,7 @@ pkg-config --modversion ompl
 
 ### 1. Download the Source Code
 
-Clone this repository or download the source code files (`rrt_star_with_custom_cost.cpp`, `prm_star_with_custom_cost.cpp`, and the Python scripts) into a directory.
+Clone this repository or download the source code files (`ig_rrt_star.cpp`, `ri_prm_star.cpp`, and the Python scripts) into a directory.
 
 ```bash
 cd ~
@@ -144,7 +144,7 @@ Place the C++ and Python files in this directory.
 ### 2. Compile RRT* Code
 
 ```bash
-g++ -std=c++11 rrt_star_with_custom_cost.cpp -o rrt_star \
+g++ -std=c++11 ig_rrt_star.cpp -o rrt_star \
     -I/usr/include/eigen3 \
     -I/usr/include/boost \
     $(pkg-config --cflags --libs ompl) \
@@ -164,7 +164,7 @@ g++ -std=c++11 rrt_star_with_custom_cost.cpp -o rrt_star \
 ### 3. Compile PRM* Code
 
 ```bash
-g++ -std=c++11 prm_star_with_custom_cost.cpp -o prm_star \
+g++ -std=c++11 ri_prm_star.cpp -o prm_star \
     -I/usr/include/eigen3 \
     -I/usr/include/boost \
     $(pkg-config --cflags --libs ompl) \
@@ -481,7 +481,7 @@ python3 plot_prm_path.py
 
 #### a. `max_number` (RRT* Code)
 
-- **Location**: Near the beginning of `rrt_star_with_custom_cost.cpp`.
+- **Location**: Near the beginning of `ig_rrt_star.cpp`.
 - **Description**: Determines the number of times the RRT* planner runs.
 - **Default Value**: `int max_number = 5;`
 - **Usage**: Increase or decrease to run the planner more or fewer times.
