@@ -57,7 +57,7 @@ public:
         }
 
         // Generate a positive definite matrix using randpdm
-        std::vector<double> trace = {0.4, 0.8}; // Trace of the matrix
+        std::vector<double> trace = {0.1, 0.2}; // Trace of the matrix
         int num = 1; // Number of matrices to generate
         std::string type = "real"; // "real" or "complex"
         std::string method = "rejection"; // "rejection" or "betadistr"
@@ -615,7 +615,7 @@ int main()
     ss.setPlanner(planner);
 
     // Attempt to solve the problem within a given time (seconds)
-    ob::PlannerStatus solved = ss.solve(20.0);
+    ob::PlannerStatus solved = ss.solve(30.0);
 
     if (solved)
     {

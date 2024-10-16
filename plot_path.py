@@ -37,10 +37,27 @@ def plot_confidence_ellipse(x, P_inv, chi_square_val, ax, **kwargs):
     )
     ax.add_patch(ellipse)
 
+def update_covariance(P_prev, state_current, state_previous, noise_factor=0.01):
+    """
+    Update the covariance matrix based on the previous state and current state.
+    
+    Parameters:
+        P_prev (np.ndarray): Previous covariance matrix.
+        state_current (np.ndarray): Current state.
+        state_previous (np.ndarray): Previous state.
+        noise_factor (float): Factor to scale the noise added to the covariance.
+        
+    Returns:
+        np.ndarray: Updated covariance matrix.
+    """
+    distance = np.linalg.norm(state_current - state_previous)
+    noise = distance * np.array([[noise_factor, 0.0], [0.0, noise_factor]])
+    return P_prev + noise
+
 def main():
     # Read the path data from CSV
     data = []
-    with open('path_data.csv', 'r') as csvfile:
+    with open('path_data_rrt.csv', 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             x = float(row['x'])
@@ -53,28 +70,42 @@ def main():
     # Extract positions and covariances
     positions = np.array([[d['x'], d['y']] for d in data])
     covariances = []
+    states = []
+
     for d in data:
         P = np.array([[d['P11'], d['P12']],
                       [d['P12'], d['P22']]])
+        x = np.array([[d['x'], d['y']]]) 
         covariances.append(P)
+        states.append(x)
+
+    # Initialize covariance estimates
+    covariances_estimates = [covariances[0]]
+
+    # Compute covariance estimates
+    for i in range(1, len(covariances)):
+        P_hat = update_covariance(covariances[i - 1], states[i], states[i - 1])
+        covariances_estimates.append(P_hat)
 
     # Plotting
     fig, ax = plt.subplots(figsize=(8, 8))
 
     # Plot the path
-    ax.plot(positions[:,0], positions[:,1], 'o-', label='Path')
+    ax.plot(positions[:, 0], positions[:, 1], 'o-', label='Path')
 
     # Plot start and goal
-    ax.plot(positions[0,0], positions[0,1], 'go', markersize=10, label='Start')
-    ax.plot(positions[-1,0], positions[-1,1], 'ro', markersize=10, label='Goal')
+    ax.plot(positions[0, 0], positions[0, 1], 'go', markersize=10, label='Start')
+    ax.plot(positions[-1, 0], positions[-1, 1], 'ro', markersize=10, label='Goal')
 
     # Plot confidence ellipsoids
     chi_square_val = 0.8
     for i, (x, P) in enumerate(zip(positions, covariances)):
-        # Inverse of P
         P_inv = np.linalg.inv(P)
-        # Plot the ellipse
         plot_confidence_ellipse(x, P_inv, chi_square_val, ax, edgecolor='b', facecolor='none', linewidth=1)
+
+    for i, (x, P) in enumerate(zip(positions, covariances_estimates)):
+        P_inv = np.linalg.inv(P)
+        plot_confidence_ellipse(x, P_inv, chi_square_val, ax, edgecolor='k', facecolor='none', linewidth=1)
 
     ax.set_xlabel('x')
     ax.set_ylabel('y')
@@ -86,4 +117,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
