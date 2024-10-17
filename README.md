@@ -707,3 +707,23 @@ The Python plotting scripts (`plot_paths.py` for RRT* and `plot_prm_path.py` for
   - Modify the obstacle density and sizes to ensure there exists a feasible path.
   - Adjust the workspace bounds to provide more space for path planning.
 
+### If you find our work useful, please cite us
+```
+@article{pedram2022gaussian,
+  title={Gaussian belief space path planning for minimum sensing navigation},
+  author={Pedram, Ali Reza and Funada, Riku and Tanaka, Takashi},
+  journal={IEEE Transactions on Robotics},
+  volume={39},
+  number={3},
+  pages={2040--2059},
+  year={2022},
+  publisher={IEEE}
+}
+@article{zinage2023optimal,
+  title={Optimal Sampling-based Motion Planning in Gaussian Belief Space for Minimum Sensing Navigation},
+  author={Zinage, Vrushabh and Pedram, Ali Reza and Tanaka, Takashi},
+  journal={arXiv preprint arXiv:2306.00264},
+  year={2023}
+}
+```
+
