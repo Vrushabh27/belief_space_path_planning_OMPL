@@ -1,4 +1,4 @@
-# Collision Checking Algorithm for 2D case: OMPL C++ Code (ri_rrtstar_v5.cpp)
+# Collision Checking Algorithm for 2D case: OMPL C++ Code (ri_rrt_star_2d.cpp)
 
 This README provides a comprehensive overview of the collision-checking algorithm implemented in the provided OMPL C++ code. The algorithm determines whether an **ellipse** collides with a **polygon** (triangle, square, or pentagon) by transforming the ellipse into a unit circle and applying the **Separating Axis Theorem (SAT)** for efficient collision detection.
 
