@@ -1,5 +1,3 @@
-// rrt_star_with_custom_cost.cpp
-
 // Include OMPL headers
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/ValidStateSampler.h>
