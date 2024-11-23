@@ -171,50 +171,6 @@ void generateRandomObstacles(int m1, int m2, int m3, std::vector<Obstacle> &obst
 }
 
 
-// // Function to generate random obstacles with adjustable sizes
-// void generateRandomObstacles(int m1, int m2, int m3, std::vector<Obstacle> &obstacles, double workspace_min, double workspace_max, double min_size, double max_size, std::mt19937 &gen)
-// {
-//     std::uniform_real_distribution<> pos_dist(workspace_min + max_size, workspace_max - max_size);
-//     std::uniform_real_distribution<> size_dist(min_size, max_size); // Sizes of the obstacles
-
-//     for (int i = 0; i < m1 + m2 + m3; ++i)
-//     {
-//         Obstacle obs;
-//         if (i < m1)
-//             obs.type = "triangle";
-//         else if (i < m1 + m2)
-//             obs.type = "square";
-//         else
-//             obs.type = "pentagon";
-
-//         // Generate a random center
-//         double cx = pos_dist(gen);
-//         double cy = pos_dist(gen);
-//         Eigen::Vector2d center(cx, cy);
-
-//         // Generate a random size (scale)
-//         double scale = size_dist(gen);
-
-//         int num_vertices;
-//         if (obs.type == "triangle")
-//             num_vertices = 3;
-//         else if (obs.type == "square")
-//             num_vertices = 4;
-//         else // pentagon
-//             num_vertices = 5;
-
-//         // Generate vertices of a regular polygon
-//         for (int j = 0; j < num_vertices; ++j)
-//         {
-//             double angle = 2 * M_PI * j / num_vertices;
-//             double x = center.x() + scale * cos(angle);
-//             double y = center.y() + scale * sin(angle);
-//             obs.vertices.emplace_back(x, y);
-//         }
-//         obstacles.push_back(obs);
-//     }
-// }
-
 // Function to write obstacles to CSV
 void writeObstaclesToCSV(const std::vector<Obstacle> &obstacles, const std::string &filename)
 {
@@ -342,7 +298,7 @@ public:
             for (const auto &vertex : transformed_polygon) {
     double distance = (vertex - center).norm();
     if (distance <= ellipse_radius + EPSILON) {
-        return true; // Collision detected
+        return false; // Collision detected
     }
 }
 
@@ -862,7 +818,11 @@ public:
     MyMotionValidator(const ob::SpaceInformationPtr &si, int dimension, const std::vector<Obstacle> &obstacles, const Eigen::MatrixXd &W)
         : ob::MotionValidator(si), si_(si.get()), d(dimension), obstacles_(obstacles), W(W)
     {
-        validityChecker_ = std::make_shared<MyStateValidityChecker>(si, d, obstacles_);
+        // Retrieve the existing state validity checker
+        validityChecker_ = std::dynamic_pointer_cast<MyStateValidityChecker>(si->getStateValidityChecker());
+        if (!validityChecker_) {
+            throw std::runtime_error("Failed to cast StateValidityChecker to MyStateValidityChecker.");
+        }
     }
 
     bool checkMotion(const ob::State *s1, const ob::State *s2) const override
@@ -886,8 +846,8 @@ public:
             Eigen::VectorXd x = x_k + t * (x_k1 - x_k);
             double distance = t * total_distance;
 
-            // Compute P(t) = P_k + (t * ||x_{k+1} - x_k||) * W
-            Eigen::MatrixXd P = P_k + distance * W;
+            // Compute P(t) = (1-t) * P_k + t * P_k1
+            Eigen::MatrixXd P = (1 - t) * P_k + t * P_k1;
 
             // Ensure P is symmetric
             P = (P + P.transpose()) / 2.0;
@@ -925,6 +885,7 @@ private:
     std::shared_ptr<MyStateValidityChecker> validityChecker_;
 };
 
+
 int main(int argc, char **argv)
 {
     // Check for command-line argument specifying the obstacle file
@@ -937,7 +898,7 @@ int main(int argc, char **argv)
     }
 
     // Set the number of times to run the planner
-    int max_number = 20; // Modify this value as needed
+    int max_number = 3; // Modify this value as needed
 
     // Random number generator for obstacle generation
     std::random_device rd;
